@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">Pomodoro</string>
+
+    <string name="page_home">Inicio</string>
+
+    <string name="page_settings">Ajustes</string>
+    <string name="frag_set_title">Ajustes</string>
+    <string name="frag_set_op_theme">Tema</string>
+    <string name="frag_set_op_silent">Silencio</string>
+    <string name="frag_set_op_vibration">Vibración</string>
+    <string name="frag_set_descript_switch_silent">Silencio</string>
+</resources>
