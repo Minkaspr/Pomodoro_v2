@@ -61,9 +61,6 @@ public class SettingsFragment extends Fragment {
                         }
                         v.setPressed(false);
                     })
-                    /*.setNegativeButton("Cancelar", (dialogInterface, i) -> {
-                        v.setPressed(false);
-                    })*/
                     .setNegativeButton("Cancelar", (dialogInterface, i) -> v.setPressed(false))
                     .show();
         }
