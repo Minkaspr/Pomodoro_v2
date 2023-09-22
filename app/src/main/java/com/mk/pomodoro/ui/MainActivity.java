@@ -11,7 +11,7 @@ import android.view.MenuItem;
 import com.mk.pomodoro.R;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.mk.pomodoro.controller.adapter.ViewPagerAdapter;
+import com.mk.pomodoro.ui.adapter.ViewPagerAdapter;
 
 public class MainActivity extends AppCompatActivity {
 

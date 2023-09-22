@@ -1,4 +1,4 @@
-package com.mk.pomodoro.controller.adapter;
+package com.mk.pomodoro.ui.adapter;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;

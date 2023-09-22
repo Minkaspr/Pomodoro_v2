@@ -2,6 +2,12 @@
     <string name="app_name">Pomodoro</string>
 
     <string name="page_home">Inicio</string>
+    <string name="frag_hom_title">POMODORO</string>
+    <string name="frag_hom_sub_title1">Trabajo</string>
+    <string name="frag_hom_sub_title2">Descanso</string>
+    <string name="frag_hom_default_time">00:00</string>
+    <string name="frag_hom_descript_ic_circle">fondo</string>
+
 
     <string name="page_settings">Ajustes</string>
     <string name="frag_set_title">Ajustes</string>
