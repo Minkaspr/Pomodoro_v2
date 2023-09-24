@@ -11,6 +11,19 @@
 
     <string name="page_settings">Ajustes</string>
     <string name="frag_set_title">Ajustes</string>
+    <string name="frag_set_op_pomodoro">Tipo de pomodoro</string>
+    <string name="frag_set_op_1_classic">Clásico</string>
+    <string name="frag_set_op_1_classic_descript">Trabajo 25 min y Descanso 5 min</string>
+    <string name="frag_set_op_2_extended">Extendido</string>
+    <string name="frag_set_op_2_extended_descript">Trabajo 45 min y Descanso 15 min</string>
+    <string name="frag_set_op_3_short">Corto</string>
+    <string name="frag_set_op_3_short_descript">Trabajo 10 min y Descanso 2 min</string>
+    <string name="frag_set_op_4_personalized">Personalizado</string>
+    <string name="frag_set_op_4_personalized_descript">Trabajo y Descanso a tu medida</string>
+    <!-- maximo: trabajo 90 - descanso 30 | minimo: trabajo 5 - descanso 1 -->
+    <string name="frag_set_descript_ic_check">Seleccionado</string>
+
+    <string name="frag_set_op_system">Sistema</string>
     <string name="frag_set_op_theme">Tema</string>
     <string name="frag_set_op_silent">Silencio</string>
     <string name="frag_set_op_vibration">Vibración</string>
