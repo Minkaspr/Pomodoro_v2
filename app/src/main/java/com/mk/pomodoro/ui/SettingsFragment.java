@@ -12,6 +12,7 @@ import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,7 +58,13 @@ public class SettingsFragment extends Fragment {
         clClasico.setOnClickListener(v -> activarVisibilidad(View.VISIBLE, View.INVISIBLE, View.INVISIBLE, View.INVISIBLE));
         clExtendido.setOnClickListener(v -> activarVisibilidad(View.INVISIBLE, View.VISIBLE, View.INVISIBLE, View.INVISIBLE));
         clCorto.setOnClickListener(v -> activarVisibilidad(View.INVISIBLE, View.INVISIBLE, View.VISIBLE, View.INVISIBLE));
-        clPersonalizado.setOnClickListener(v -> activarVisibilidad(View.INVISIBLE, View.INVISIBLE, View.INVISIBLE, View.VISIBLE));
+        clPersonalizado.setOnClickListener(v -> {
+            activarVisibilidad(View.INVISIBLE, View.INVISIBLE, View.INVISIBLE, View.VISIBLE);
+            new Handler().postDelayed(() -> {
+                CustomTimerBottomSheet bottomSheet = CustomTimerBottomSheet.newInstance();
+                bottomSheet.show(getParentFragmentManager(), "CustomTimerBottomSheet");
+            }, 200);
+        });
     }
 
     private void activarVisibilidad(int visibilityClasico, int visibilityExtendido, int visibilityCorto, int visibilityPersonalizado) {
@@ -71,7 +78,7 @@ public class SettingsFragment extends Fragment {
         if (visibility == View.VISIBLE && imageView.getVisibility() != View.VISIBLE) {
             imageView.setVisibility(View.VISIBLE);
             imageView.setAlpha(0f);
-            imageView.animate().alpha(1f).setDuration(750);
+            imageView.animate().alpha(1f).setDuration(250);
         } else if (visibility != View.VISIBLE) {
             imageView.setVisibility(View.INVISIBLE);
         }
