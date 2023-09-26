@@ -67,7 +67,6 @@ public class Temporizador {
             return padre.milisegundosRestantes;
         }
     }
-
     public void pausarTemporizador() {
         temporizador.cancel();
         estaCorriendo = false;

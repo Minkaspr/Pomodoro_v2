@@ -4,6 +4,7 @@ import static android.content.Context.MODE_PRIVATE;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -68,7 +69,7 @@ public class CustomTimerBottomSheet extends BottomSheetDialogFragment {
         tietTiempoDescanso = view.findViewById(R.id.tietBreakTime);
         btnCerrar = view.findViewById(R.id.btnClose);
         btnConfirmar = view.findViewById(R.id.btnConfirm);
-        btnCerrar.setOnClickListener(v -> new Handler().postDelayed(() -> dismiss(), 250));
+        btnCerrar.setOnClickListener(v -> new Handler().postDelayed(this::dismiss, 250));
 
         tietTiempoTrabajo.addTextChangedListener(new TextWatcher() {
             @Override
@@ -116,21 +117,20 @@ public class CustomTimerBottomSheet extends BottomSheetDialogFragment {
 
         btnConfirmar.setOnClickListener(v -> {
             isConfirming = true;
-            // Obtén los tiempos ingresados por el usuario
+            // Obtener los tiempos ingresados por el usuario
             String tiempoTrabajoStr = tietTiempoTrabajo.getText() != null ? tietTiempoTrabajo.getText().toString() : "";
             String tiempoDescansoStr = tietTiempoDescanso.getText() != null ? tietTiempoDescanso.getText().toString() : "";
             int tiempoTrabajo = Integer.parseInt(tiempoTrabajoStr);
             int tiempoDescanso = Integer.parseInt(tiempoDescansoStr);
 
-            // Guarda los tiempos en SharedPreferences
             guardarTiempos(tiempoTrabajo, tiempoDescanso);
 
-            // Actualiza los valores en el ViewModel
+            // Actualizar los valores en el ViewModel
             PomodoroTypeTimeViewModel pomodoroType = new ViewModelProvider(requireActivity()).get(PomodoroTypeTimeViewModel.class);
             pomodoroType.setTiempoTrabajo(tiempoTrabajo);
             pomodoroType.setTiempoDescanso(tiempoDescanso);
             pomodoroType.setOpcionSeleccionada(4);
-            // Cierra el BottomSheet
+
             dismiss();
         });
         return view;
@@ -139,9 +139,7 @@ public class CustomTimerBottomSheet extends BottomSheetDialogFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        // Obtén la actividad
         Activity activity = getActivity();
-        // Verifica si la actividad es null
         if (activity != null) {
             // Comprueba si el BottomSheet se está cerrando sin confirmar los cambios
             if (!isConfirming) {
@@ -153,6 +151,25 @@ public class CustomTimerBottomSheet extends BottomSheetDialogFragment {
                 }
             }
         }
+        onCloseListener.onClose();
+    }
+
+    @Override
+    public void onCancel(@NonNull DialogInterface dialog) {
+        super.onCancel(dialog);
+        Activity activity = getActivity();
+        if (activity != null) {
+            // Comprueba si el BottomSheet se está cerrando sin confirmar los cambios
+            if (!isConfirming) {
+                // Recupera la última opción seleccionada de SharedPreferences
+                SharedPreferences sharedPreferences = activity.getSharedPreferences("minka", MODE_PRIVATE);
+                int ultimaOpcionSeleccionada = sharedPreferences.getInt("opcionSeleccionada", 2);
+                if (onOptionChangeListener != null) {
+                    onOptionChangeListener.onOptionChange(ultimaOpcionSeleccionada);
+                }
+            }
+        }
+        onCloseListener.onClose();
     }
 
     private void validarEntrada(CharSequence entradaUsuario , int minimo, int maximo, TextInputLayout til) {
@@ -179,25 +196,14 @@ public class CustomTimerBottomSheet extends BottomSheetDialogFragment {
     }
 
     private void guardarTiempos(int tiempoTrabajo, int tiempoDescanso) {
-
         Activity activity = getActivity();
-
-        // Verifica si la actividad es null
         if (activity != null) {
-            // Obtén las SharedPreferences
+            // Actualizar los tiempos de trabajo y descanso, y también la opcion en el SharedPreferences
             SharedPreferences sharedPreferences = activity.getSharedPreferences("minka", MODE_PRIVATE);
-
-            // Crea un editor para las SharedPreferences
             SharedPreferences.Editor editor = sharedPreferences.edit();
-
-            // Establece los tiempos de trabajo y descanso
             editor.putInt("tiempoTrabajo", tiempoTrabajo);
             editor.putInt("tiempoDescanso", tiempoDescanso);
-
-            // Guardar la opcion 4
             editor.putInt("opcionSeleccionada", 4);
-
-            // Guarda los cambios
             editor.apply();
         }
     }

@@ -47,7 +47,7 @@ public class SettingsFragment extends Fragment implements CustomTimerBottomSheet
         super.onViewCreated(view, savedInstanceState);
 
         llcTema = view.findViewById(R.id.llTheme);
-        llcTema.setOnClickListener(v -> mostrarDialogoTema(v));
+        llcTema.setOnClickListener(this::mostrarDialogoTema);
 
         ivClasico = view.findViewById(R.id.ivClassic);
         ivExtendido = view.findViewById(R.id.ivExtended);
@@ -58,7 +58,6 @@ public class SettingsFragment extends Fragment implements CustomTimerBottomSheet
         clExtendido = view.findViewById(R.id.clExtended);
         clCorto = view.findViewById(R.id.clShort);
         clPersonalizado = view.findViewById(R.id.clPersonalized);
-
 
         clExtendido.setOnClickListener(v -> {
             activarVisibilidad(View.VISIBLE, View.INVISIBLE, View.INVISIBLE, View.INVISIBLE);
@@ -82,30 +81,11 @@ public class SettingsFragment extends Fragment implements CustomTimerBottomSheet
                 CustomTimerBottomSheet bottomSheet = CustomTimerBottomSheet.newInstance();
                 bottomSheet.setOnOptionChangeListener(this);
                 bottomSheet.setOnCloseListener(() -> {
-                    // Obtén la actividad
                     Activity activity = getActivity();
-
-                    // Verifica si la actividad es null
                     if (activity != null) {
-                        // Obtén las SharedPreferences
                         SharedPreferences sharedPreferences = activity.getSharedPreferences("minka", MODE_PRIVATE);
                         int ultimaOpcionSeleccionada = sharedPreferences.getInt("opcionSeleccionada", 2);
-
-                        // Actualiza la interfaz de usuario según la última opción seleccionada
-                        switch (ultimaOpcionSeleccionada) {
-                            case 1:
-                                clExtendido.performClick();  // Simula un clic en clExtendido
-                                break;
-                            case 2:
-                                clClasico.performClick();  // Simula un clic en clClasico
-                                break;
-                            case 3:
-                                clCorto.performClick();  // Simula un clic en clCorto
-                                break;
-                            case 4:
-                                clPersonalizado.performClick();  // Simula un clic en clPersonalizado
-                                break;
-                        }
+                        simularClick(ultimaOpcionSeleccionada);
                     }
                 });
                 bottomSheet.show(getParentFragmentManager(), "CustomTimerBottomSheet");
@@ -115,71 +95,22 @@ public class SettingsFragment extends Fragment implements CustomTimerBottomSheet
         Activity activity = getActivity();
         if (activity != null) {
             SharedPreferences sharedPreferences = activity.getSharedPreferences("minka", MODE_PRIVATE);
-            // Obtén la opción seleccionada de las SharedPreferences
             int opcionSeleccionada = sharedPreferences.getInt("opcionSeleccionada", 2);
-
-            // Establece los valores de tiempo y la visibilidad de las vistas según la opción seleccionada
-            switch (opcionSeleccionada) {
-                case 1:
-                    activarVisibilidad(View.VISIBLE, View.INVISIBLE, View.INVISIBLE, View.INVISIBLE);
-                    break;
-                case 2:
-                    activarVisibilidad(View.INVISIBLE, View.VISIBLE, View.INVISIBLE, View.INVISIBLE);
-                    break;
-                case 3:
-                    activarVisibilidad(View.INVISIBLE, View.INVISIBLE, View.VISIBLE, View.INVISIBLE);
-                    break;
-                case 4:
-                    activarVisibilidad(View.INVISIBLE, View.INVISIBLE, View.INVISIBLE, View.VISIBLE);
-                    break;
-            }
+            actualizarVisibilidad(opcionSeleccionada);
         }
     }
 
     @Override
     public void onResume() {
         super.onResume();
-
         // Vuelve a observar los cambios en la opción seleccionada en tiempo real
         PomodoroTypeTimeViewModel pomodoroTypeTime = new ViewModelProvider(requireActivity()).get(PomodoroTypeTimeViewModel.class);
-
-        pomodoroTypeTime.getOpcionSeleccionada().observe(getViewLifecycleOwner(), nuevaOpcion -> {
-            // Actualiza la visibilidad de las vistas según la opción seleccionada
-            switch (nuevaOpcion) {
-                case 1:
-                    activarVisibilidad(View.VISIBLE, View.INVISIBLE, View.INVISIBLE, View.INVISIBLE);
-                    break;
-                case 2:
-                    activarVisibilidad(View.INVISIBLE, View.VISIBLE, View.INVISIBLE, View.INVISIBLE);
-                    break;
-                case 3:
-                    activarVisibilidad(View.INVISIBLE, View.INVISIBLE, View.VISIBLE, View.INVISIBLE);
-                    break;
-                case 4:
-                    activarVisibilidad(View.INVISIBLE, View.INVISIBLE, View.INVISIBLE, View.VISIBLE);
-                    break;
-            }
-        });
+        pomodoroTypeTime.getOpcionSeleccionada().observe(getViewLifecycleOwner(), this::actualizarVisibilidad);
     }
-
 
     @Override
     public void onOptionChange(int option) {
-        // Actualiza la interfaz de usuario según la opción seleccionada
-        switch (option) {
-            case 1:
-                clExtendido.performClick();  // Simula un clic en clExtendido
-                break;
-            case 2:
-                clClasico.performClick();  // Simula un clic en clClasico
-                break;
-            case 3:
-                clCorto.performClick();  // Simula un clic en clCorto
-                break;
-            case 4:
-                clPersonalizado.performClick();  // Simula un clic en clPersonalizado
-                break;
-        }
+        simularClick(option);
     }
 
     private void activarVisibilidad(int visibilityExtendido, int visibilityClasico, int visibilityCorto, int visibilityPersonalizado) {
@@ -245,42 +176,27 @@ public class SettingsFragment extends Fragment implements CustomTimerBottomSheet
     }
 
     private void guardarOpcionSeleccionada(int opcion) {
-        // Obtén la actividad
         Activity activity = getActivity();
-
-        // Verifica si la actividad es null
         if (activity != null) {
-            // Obtén las SharedPreferences
+            // Actualizar la opción seleccionada en el SharedPreferences
             SharedPreferences sharedPreferences = activity.getSharedPreferences("minka", MODE_PRIVATE);
-
-            // Crea un editor para las SharedPreferences
             SharedPreferences.Editor editor = sharedPreferences.edit();
-
-            // Establece la opción seleccionada
             editor.putInt("opcionSeleccionada", opcion);
 
             // Actualiza los valores en el ViewModel
             PomodoroTypeTimeViewModel pomodoroType = new ViewModelProvider(requireActivity()).get(PomodoroTypeTimeViewModel.class);
             pomodoroType.setOpcionSeleccionada(opcion);
 
-            // Guarda los cambios
             editor.apply();
         }
     }
 
     private void guardarTiempos(int tiempoTrabajo, int tiempoDescanso) {
-        // Obtén la actividad
         Activity activity = getActivity();
-
-        // Verifica si la actividad es null
         if (activity != null) {
-            // Obtén las SharedPreferences
+            // Actualizar los tiempos de trabajo y descanso en el SharedPreferences
             SharedPreferences sharedPreferences = activity.getSharedPreferences("minka", MODE_PRIVATE);
-
-            // Crea un editor para las SharedPreferences
             SharedPreferences.Editor editor = sharedPreferences.edit();
-
-            // Establece los tiempos de trabajo y descanso
             editor.putInt("tiempoTrabajo", tiempoTrabajo);
             editor.putInt("tiempoDescanso", tiempoDescanso);
 
@@ -289,9 +205,41 @@ public class SettingsFragment extends Fragment implements CustomTimerBottomSheet
             pomodoroType.setTiempoTrabajo(tiempoTrabajo);
             pomodoroType.setTiempoDescanso(tiempoDescanso);
 
-            // Guarda los cambios
             editor.apply();
         }
     }
 
+    private void simularClick(int opcion) {
+        switch (opcion) {
+            case 1:
+                clExtendido.performClick();  // Simula un clic en clExtendido
+                break;
+            case 2:
+                clClasico.performClick();  // Simula un clic en clClasico
+                break;
+            case 3:
+                clCorto.performClick();  // Simula un clic en clCorto
+                break;
+            case 4:
+                clPersonalizado.performClick();  // Simula un clic en clPersonalizado
+                break;
+        }
+    }
+
+    private void actualizarVisibilidad(int opcion) {
+        switch (opcion) {
+            case 1:
+                activarVisibilidad(View.VISIBLE, View.INVISIBLE, View.INVISIBLE, View.INVISIBLE);
+                break;
+            case 2:
+                activarVisibilidad(View.INVISIBLE, View.VISIBLE, View.INVISIBLE, View.INVISIBLE);
+                break;
+            case 3:
+                activarVisibilidad(View.INVISIBLE, View.INVISIBLE, View.VISIBLE, View.INVISIBLE);
+                break;
+            case 4:
+                activarVisibilidad(View.INVISIBLE, View.INVISIBLE, View.INVISIBLE, View.VISIBLE);
+                break;
+        }
+    }
 }

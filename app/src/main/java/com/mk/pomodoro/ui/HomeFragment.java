@@ -4,6 +4,7 @@ import static android.content.Context.MODE_PRIVATE;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 
 import androidx.appcompat.widget.AppCompatTextView;
@@ -30,12 +31,13 @@ public class HomeFragment extends Fragment {
     AppCompatTextView tiempo;
     TabLayout tabLayout;
     private CircularProgressIndicator barraProgresoCircular;
-    private MaterialButton botonParar, botonIniciar, botonPausar,botonContinuar;
+    private MaterialButton botonParar, botonIniciar, botonPausar, botonContinuar, botonPararAlarma;
     private Temporizador temporizador;
     private boolean iniciarTemporizador = false;
     private SharedPreferences sharedPreferences;
     private int tiempoTrabajo;
     private int tiempoDescanso;
+    private MediaPlayer mediaPlayer;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,6 +54,8 @@ public class HomeFragment extends Fragment {
         botonIniciar = view.findViewById(R.id.btnPlay);
         botonPausar = view.findViewById(R.id.btnPause);
         botonContinuar = view.findViewById(R.id.btnContinue);
+        botonPararAlarma = view.findViewById(R.id.btnStopAlarm);
+        mediaPlayer = MediaPlayer.create(getActivity(), R.raw.racing_into_the_night_yoasobi);
 
         Context context = getActivity();
         if (context != null) {
@@ -110,16 +114,27 @@ public class HomeFragment extends Fragment {
             botonContinuar.setVisibility(View.GONE);
             botonPausar.setVisibility(View.VISIBLE);
         });
+        botonPararAlarma.setOnClickListener(v -> {
+            // Detiene el sonido de la alarma.
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.pause();
+                mediaPlayer.seekTo(0);
+            }
+            // Desactiva la repetición del MediaPlayer.
+            mediaPlayer.setLooping(false);
+            // Oculta el botón para detener la alarma.
+            botonPararAlarma.setVisibility(View.GONE);
+            temporizador.reiniciarTemporizador(barraProgresoCircular, tiempo);
+            botonIniciar.setVisibility(View.VISIBLE);
+        });
         return view;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-
         // Observa los cambios en ViewModel
         PomodoroTypeTimeViewModel pomodoroTypeTime = new ViewModelProvider(requireActivity()).get(PomodoroTypeTimeViewModel.class);
-
         pomodoroTypeTime.getTiempoTrabajo().observe(getViewLifecycleOwner(), new Observer<Integer>() {
             @Override
             public void onChanged(Integer nuevoTiempoTrabajo) {
@@ -159,7 +174,21 @@ public class HomeFragment extends Fragment {
             barraProgresoCircular.setProgress(segundosRestantes);
             System.out.println(segundosRestantes);
         });
-        temporizador.setEscuchadorFinalizacion(() -> tiempo.setText("00:00"));
+
+        temporizador.setEscuchadorFinalizacion(() -> {
+            tiempo.setText("00:00");
+            // Reproduce el sonido de la alarma.
+            mediaPlayer.start();
+            // Configura el MediaPlayer para que se repita.
+            mediaPlayer.setLooping(true);
+            // Oculta los otros botones.
+            botonIniciar.setVisibility(View.GONE);
+            botonPausar.setVisibility(View.GONE);
+            botonContinuar.setVisibility(View.GONE);
+            botonParar.setVisibility(View.GONE);
+            // Muestra el botón para detener la alarma.
+            botonPararAlarma.setVisibility(View.VISIBLE);
+        });
         // Mostramos el tiempo inicial sin iniciar el temporizador
         int segundosRestantes = segundos;
         tiempo.setText(String.format(Locale.getDefault(), "%02d:%02d", segundosRestantes / 60, segundosRestantes % 60));
