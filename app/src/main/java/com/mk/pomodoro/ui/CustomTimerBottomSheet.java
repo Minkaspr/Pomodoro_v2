@@ -19,6 +19,7 @@ import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
@@ -34,6 +35,7 @@ public class CustomTimerBottomSheet extends BottomSheetDialogFragment {
     private Button btnCerrar, btnConfirmar;
 
     private Boolean isConfirming = false;
+    private boolean shouldShowBottomSheet = true;
 
     public interface OnCloseListener {
         void onClose();
@@ -117,6 +119,7 @@ public class CustomTimerBottomSheet extends BottomSheetDialogFragment {
 
         btnConfirmar.setOnClickListener(v -> {
             isConfirming = true;
+            shouldShowBottomSheet = false;
             // Obtener los tiempos ingresados por el usuario
             String tiempoTrabajoStr = tietTiempoTrabajo.getText() != null ? tietTiempoTrabajo.getText().toString() : "";
             String tiempoDescansoStr = tietTiempoDescanso.getText() != null ? tietTiempoDescanso.getText().toString() : "";
@@ -131,36 +134,26 @@ public class CustomTimerBottomSheet extends BottomSheetDialogFragment {
             pomodoroType.setTiempoDescanso(tiempoDescanso);
             pomodoroType.setOpcionSeleccionada(4);
 
+            // Recupera la última opción seleccionada de SharedPreferences
+            SharedPreferences sharedPreferences = getActivity().getSharedPreferences("minka", MODE_PRIVATE);
+            int ultimaOpcionSeleccionada = sharedPreferences.getInt("opcionSeleccionada", 2);
+
+            if (onOptionChangeListener != null) {
+                onOptionChangeListener.onOptionChange(ultimaOpcionSeleccionada);
+            }
             dismiss();
         });
+
         return view;
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onDismiss(DialogInterface dialog) {
+        super.onDismiss(dialog);
         Activity activity = getActivity();
         if (activity != null) {
-            // Comprueba si el BottomSheet se está cerrando sin confirmar los cambios
-            if (!isConfirming) {
-                // Recupera la última opción seleccionada de SharedPreferences
-                SharedPreferences sharedPreferences = activity.getSharedPreferences("minka", MODE_PRIVATE);
-                int ultimaOpcionSeleccionada = sharedPreferences.getInt("opcionSeleccionada", 2);
-                if (onOptionChangeListener != null) {
-                    onOptionChangeListener.onOptionChange(ultimaOpcionSeleccionada);
-                }
-            }
-        }
-        onCloseListener.onClose();
-    }
-
-    @Override
-    public void onCancel(@NonNull DialogInterface dialog) {
-        super.onCancel(dialog);
-        Activity activity = getActivity();
-        if (activity != null) {
-            // Comprueba si el BottomSheet se está cerrando sin confirmar los cambios
-            if (!isConfirming) {
+            // Comprueba si el BottomSheet se está cerrando confirmando los cambios
+            if (isConfirming) {
                 // Recupera la última opción seleccionada de SharedPreferences
                 SharedPreferences sharedPreferences = activity.getSharedPreferences("minka", MODE_PRIVATE);
                 int ultimaOpcionSeleccionada = sharedPreferences.getInt("opcionSeleccionada", 2);
@@ -206,5 +199,9 @@ public class CustomTimerBottomSheet extends BottomSheetDialogFragment {
             editor.putInt("opcionSeleccionada", 4);
             editor.apply();
         }
+    }
+
+    public boolean getShouldShowBottomSheet() {
+        return shouldShowBottomSheet;
     }
 }

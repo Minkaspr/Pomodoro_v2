@@ -91,13 +91,14 @@ public class HomeFragment extends Fragment {
             public void onTabReselected(TabLayout.Tab tab) {}
         });
         prepararTemporizador(tiempoTrabajo * 60);
-        botonParar.setOnClickListener(v -> {
+        /*botonParar.setOnClickListener(v -> {
             temporizador.reiniciarTemporizador(barraProgresoCircular, tiempo);
             botonIniciar.setVisibility(View.VISIBLE);
             botonPausar.setVisibility(View.GONE);
             botonContinuar.setVisibility(View.GONE);
             botonParar.setVisibility(View.GONE);
-        });
+        });*/
+        botonParar.setOnClickListener(v -> reiniciarTemporizadorYActualizarBotones());
         botonIniciar.setOnClickListener(v -> {
             iniciarTemporizador = true;
             temporizador.iniciarTemporizador();
@@ -150,6 +151,7 @@ public class HomeFragment extends Fragment {
                 if (tabLayout.getSelectedTabPosition() == 0) {
                     // Si la opción de trabajo está seleccionada, actualiza el temporizador
                     prepararTemporizador(tiempoTrabajo * 60);
+                    reiniciarTemporizadorYActualizarBotones();
                 }
             }
         });
@@ -163,6 +165,7 @@ public class HomeFragment extends Fragment {
                 if (tabLayout.getSelectedTabPosition() == 1) {
                     // Si la opción de descanso está seleccionada, actualiza el temporizador
                     prepararTemporizador(tiempoDescanso * 60);
+                    reiniciarTemporizadorYActualizarBotones();
                 }
             }
         });
@@ -217,5 +220,12 @@ public class HomeFragment extends Fragment {
         if (iniciarTemporizador) {
             temporizador.iniciarTemporizador();
         }
+    }
+    private void reiniciarTemporizadorYActualizarBotones() {
+        temporizador.reiniciarTemporizador(barraProgresoCircular, tiempo);
+        botonIniciar.setVisibility(View.VISIBLE);
+        botonPausar.setVisibility(View.GONE);
+        botonContinuar.setVisibility(View.GONE);
+        botonParar.setVisibility(View.GONE);
     }
 }

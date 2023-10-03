@@ -104,20 +104,21 @@ public class SettingsFragment extends Fragment implements CustomTimerBottomSheet
 
         clPersonalizado.setOnClickListener(v -> {
             activarVisibilidad(View.INVISIBLE, View.INVISIBLE, View.INVISIBLE, View.VISIBLE);
-            new Handler().postDelayed(() -> {
-                CustomTimerBottomSheet bottomSheet = CustomTimerBottomSheet.newInstance();
-                bottomSheet.setOnOptionChangeListener(this);
-                bottomSheet.setOnCloseListener(() -> {
-                    Activity activity = getActivity();
-                    if (activity != null) {
-                        SharedPreferences sharedPreferences = activity.getSharedPreferences("minka", MODE_PRIVATE);
-                        int ultimaOpcionSeleccionada = sharedPreferences.getInt("opcionSeleccionada", 2);
-                        simularClick(ultimaOpcionSeleccionada);
-                    }
-                });
+            CustomTimerBottomSheet bottomSheet = CustomTimerBottomSheet.newInstance();
+            bottomSheet.setOnOptionChangeListener(this);
+            bottomSheet.setOnCloseListener(() -> {
+                Activity activity = getActivity();
+                if (activity != null) {
+                    SharedPreferences sharedPreferences = activity.getSharedPreferences("minka", MODE_PRIVATE);
+                    int ultimaOpcionSeleccionada = sharedPreferences.getInt("opcionSeleccionada", 2);
+                    simularClick(ultimaOpcionSeleccionada);
+                }
+            });
+            if (!bottomSheet.isAdded() && bottomSheet.getShouldShowBottomSheet()) {
                 bottomSheet.show(getParentFragmentManager(), "CustomTimerBottomSheet");
-            }, 200);
+            }
         });
+
 
         Activity activity = getActivity();
         if (activity != null) {
@@ -248,7 +249,7 @@ public class SettingsFragment extends Fragment implements CustomTimerBottomSheet
                 clCorto.performClick();  // Simula un clic en clCorto
                 break;
             case 4:
-                clPersonalizado.performClick();  // Simula un clic en clPersonalizado
+                // clPersonalizado.performClick();  // Simula un clic en clPersonalizado
                 break;
         }
     }
