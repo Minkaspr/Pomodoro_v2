@@ -23,14 +23,16 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.materialswitch.MaterialSwitch;
 import com.mk.pomodoro.R;
 import com.mk.pomodoro.ui.viewmodel.PomodoroTypeTimeViewModel;
 
 public class SettingsFragment extends Fragment implements CustomTimerBottomSheet.OnOptionChangeListener{
 
-    private LinearLayoutCompat llcTema;
+    private LinearLayoutCompat llcTema, llcSonido, llcVibracion;
     private ConstraintLayout clClasico, clExtendido, clCorto, clPersonalizado;
     private ImageView ivClasico, ivExtendido, ivCorto, ivPersonalizado;
+    private MaterialSwitch sSonido, sVibracion;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,6 +50,31 @@ public class SettingsFragment extends Fragment implements CustomTimerBottomSheet
 
         llcTema = view.findViewById(R.id.llTheme);
         llcTema.setOnClickListener(this::mostrarDialogoTema);
+        llcSonido = view.findViewById(R.id.llSound);
+        llcVibracion = view.findViewById(R.id.llVibration);
+        sSonido = view.findViewById(R.id.switch_sound);
+        sVibracion = view.findViewById(R.id.switch_vibration);
+        verificarSonidoVibracion();
+        sSonido.setClickable(false);
+        sVibracion.setClickable(false);
+
+        llcSonido.setOnClickListener(v -> {
+            SharedPreferences sharedPreferences = getActivity().getSharedPreferences("minka", MODE_PRIVATE);
+            boolean sonidoHabilitado = sharedPreferences.getBoolean("sonido", true);
+
+            // Invierte el estado (activo a inactivo o viceversa)
+            sonidoHabilitado = !sonidoHabilitado;
+            actualizarSwitchSonido(sonidoHabilitado);
+        });
+
+        llcVibracion.setOnClickListener(v -> {
+            SharedPreferences sharedPreferences = getActivity().getSharedPreferences("minka", MODE_PRIVATE);
+            boolean vibracionHabilitada = sharedPreferences.getBoolean("vibracion", true);
+
+            // Invierte el estado (activo a inactivo o viceversa)
+            vibracionHabilitada = !vibracionHabilitada;
+            actualizarSwitchVibracion(vibracionHabilitada);
+        });
 
         ivClasico = view.findViewById(R.id.ivClassic);
         ivExtendido = view.findViewById(R.id.ivExtended);
@@ -241,5 +268,33 @@ public class SettingsFragment extends Fragment implements CustomTimerBottomSheet
                 activarVisibilidad(View.INVISIBLE, View.INVISIBLE, View.INVISIBLE, View.VISIBLE);
                 break;
         }
+    }
+
+    private void verificarSonidoVibracion(){
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("minka", MODE_PRIVATE);
+        boolean sonidoHabilitado = sharedPreferences.getBoolean("sonido", true);
+        boolean vibracionHabilitada = sharedPreferences.getBoolean("vibracion", true);
+        if (sSonido != null) {
+            sSonido.setChecked(sonidoHabilitado);
+        }
+        if (sVibracion != null) {
+            sVibracion.setChecked(vibracionHabilitada);
+        }
+    }
+
+    private void actualizarSwitchSonido(boolean activarSonido) {
+        sSonido.setChecked(activarSonido);
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("minka", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean("sonido", activarSonido);
+        editor.apply();
+    }
+
+    private void actualizarSwitchVibracion(boolean activarVibracion) {
+        sVibracion.setChecked(activarVibracion);
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("minka", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean("vibracion", activarVibracion);
+        editor.apply();
     }
 }

@@ -32,7 +32,7 @@
 
     <string name="frag_set_op_system">Sistema</string>
     <string name="frag_set_op_theme">Tema</string>
-    <string name="frag_set_op_silent">Silencio</string>
+    <string name="frag_set_op_sound">Sonido</string>
     <string name="frag_set_op_vibration">Vibración</string>
-    <string name="frag_set_descript_switch_silent">Silencio</string>
+    <string name="frag_set_descript_switch_silent">Sonido</string>
 </resources>

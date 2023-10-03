@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Vibrator;
 
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.fragment.app.Fragment;
@@ -122,6 +123,11 @@ public class HomeFragment extends Fragment {
             }
             // Desactiva la repetición del MediaPlayer.
             mediaPlayer.setLooping(false);
+            // Detener la vibración
+            Vibrator vibrator = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
+            if (vibrator != null) {
+                vibrator.cancel();
+            }
             // Oculta el botón para detener la alarma.
             botonPararAlarma.setVisibility(View.GONE);
             temporizador.reiniciarTemporizador(barraProgresoCircular, tiempo);
@@ -177,10 +183,24 @@ public class HomeFragment extends Fragment {
 
         temporizador.setEscuchadorFinalizacion(() -> {
             tiempo.setText("00:00");
-            // Reproduce el sonido de la alarma.
-            mediaPlayer.start();
-            // Configura el MediaPlayer para que se repita.
-            mediaPlayer.setLooping(true);
+            // Leer la preferencia del usuario para el sonido y vibración
+            sharedPreferences = getActivity().getSharedPreferences("minka", MODE_PRIVATE);
+            boolean sonidoHabilitado = sharedPreferences.getBoolean("sonido", true);
+            boolean vibracionHabilitada = sharedPreferences.getBoolean("vibracion", true);
+            if (sonidoHabilitado) {
+                // Reproduce el sonido de la alarma.
+                mediaPlayer.start();
+                // Configura el MediaPlayer para que se repita.
+                mediaPlayer.setLooping(true);
+            }
+            if (vibracionHabilitada) {
+                // Activa la vibración en bucle con un patrón de 1 segundo de vibración y 1 segundo de pausa
+                Vibrator vibrator = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
+                if (vibrator != null) {
+                    long[] pattern = {0, 1000, 1000}; // Patrón: 0 ms de espera, 1000 ms de vibración, 1000 ms de pausa
+                    vibrator.vibrate(pattern, 0); // El segundo parámetro indica en qué índice del patrón comenzar (0 para repetir desde el principio)
+                }
+            }
             // Oculta los otros botones.
             botonIniciar.setVisibility(View.GONE);
             botonPausar.setVisibility(View.GONE);

@@ -236,29 +236,33 @@
                     android:layout_gravity="center_vertical"/>
             </androidx.appcompat.widget.LinearLayoutCompat>
             <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/llSound"
                 android:layout_width="match_parent"
                 android:layout_height="64dp"
                 android:paddingHorizontal="16dp"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:foreground="?attr/selectableItemBackground">
                 <androidx.appcompat.widget.AppCompatTextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/frag_set_op_silent"
+                    android:text="@string/frag_set_op_sound"
                     style="@style/MainText"
                     />
                 <com.google.android.material.materialswitch.MaterialSwitch
-                    android:id="@+id/switch_silencio"
+                    android:id="@+id/switch_sound"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:contentDescription="@string/frag_set_descript_switch_silent"
                     />
             </androidx.appcompat.widget.LinearLayoutCompat>
             <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/llVibration"
                 android:layout_width="match_parent"
                 android:layout_height="64dp"
                 android:paddingHorizontal="16dp"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:foreground="?attr/selectableItemBackground">
                 <androidx.appcompat.widget.AppCompatTextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -267,7 +271,7 @@
                     style="@style/MainText"
                     />
                 <com.google.android.material.materialswitch.MaterialSwitch
-                    android:id="@+id/switch_vibracion"
+                    android:id="@+id/switch_vibration"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent" />
             </androidx.appcompat.widget.LinearLayoutCompat>
