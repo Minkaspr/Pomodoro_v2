@@ -232,7 +232,7 @@ public class SettingsFragment extends Fragment implements CustomTimerBottomSheet
             PomodoroTypeTimeViewModel pomodoroType = new ViewModelProvider(requireActivity()).get(PomodoroTypeTimeViewModel.class);
             pomodoroType.setTiempoTrabajo(tiempoTrabajo);
             pomodoroType.setTiempoDescanso(tiempoDescanso);
-
+            pomodoroType.setConfigurationChanged(true);
             editor.apply();
         }
     }

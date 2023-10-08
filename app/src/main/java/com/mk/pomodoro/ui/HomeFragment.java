@@ -142,31 +142,30 @@ public class HomeFragment extends Fragment {
         super.onResume();
         // Observa los cambios en ViewModel
         PomodoroTypeTimeViewModel pomodoroTypeTime = new ViewModelProvider(requireActivity()).get(PomodoroTypeTimeViewModel.class);
-        pomodoroTypeTime.getTiempoTrabajo().observe(getViewLifecycleOwner(), new Observer<Integer>() {
-            @Override
-            public void onChanged(Integer nuevoTiempoTrabajo) {
-                // Actualiza tu variable tiempoTrabajo con el nuevo tiempo de trabajo
-                tiempoTrabajo = nuevoTiempoTrabajo;
-                // Comprueba si la opción de trabajo está seleccionada en tu TabLayout
-                if (tabLayout.getSelectedTabPosition() == 0) {
-                    // Si la opción de trabajo está seleccionada, actualiza el temporizador
-                    prepararTemporizador(tiempoTrabajo * 60);
-                    reiniciarTemporizadorYActualizarBotones();
-                }
-            }
-        });
+        pomodoroTypeTime.isConfigurationChanged().observe(getViewLifecycleOwner(), configurationChanged -> {
+            if (configurationChanged) {
+                pomodoroTypeTime.getTiempoTrabajo().observe(getViewLifecycleOwner(), nuevoTiempoTrabajo -> {
+                    // Actualiza tu variable tiempoTrabajo con el nuevo tiempo de trabajo
+                    tiempoTrabajo = nuevoTiempoTrabajo;
+                    // Comprueba si la opción de trabajo está seleccionada en tu TabLayout
+                    if (tabLayout.getSelectedTabPosition() == 0) {
+                        // Si la opción de trabajo está seleccionada, actualiza el temporizador
+                        prepararTemporizador(tiempoTrabajo * 60);
+                        reiniciarTemporizadorYActualizarBotones();
+                    }
+                });
 
-        pomodoroTypeTime.getTiempoDescanso().observe(getViewLifecycleOwner(), new Observer<Integer>() {
-            @Override
-            public void onChanged(Integer nuevoTiempoDescanso) {
-                // Actualiza tu variable tiempoDescanso con el nuevo tiempo de descanso
-                tiempoDescanso = nuevoTiempoDescanso;
-                // Comprueba si la opción de descanso está seleccionada en tu TabLayout
-                if (tabLayout.getSelectedTabPosition() == 1) {
-                    // Si la opción de descanso está seleccionada, actualiza el temporizador
-                    prepararTemporizador(tiempoDescanso * 60);
-                    reiniciarTemporizadorYActualizarBotones();
-                }
+                pomodoroTypeTime.getTiempoDescanso().observe(getViewLifecycleOwner(), nuevoTiempoDescanso -> {
+                    // Actualiza tu variable tiempoDescanso con el nuevo tiempo de descanso
+                    tiempoDescanso = nuevoTiempoDescanso;
+                    // Comprueba si la opción de descanso está seleccionada en tu TabLayout
+                    if (tabLayout.getSelectedTabPosition() == 1) {
+                        // Si la opción de descanso está seleccionada, actualiza el temporizador
+                        prepararTemporizador(tiempoDescanso * 60);
+                        reiniciarTemporizadorYActualizarBotones();
+                    }
+                });
+                pomodoroTypeTime.setConfigurationChanged(false);
             }
         });
     }
