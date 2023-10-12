@@ -2,17 +2,21 @@ package com.mk.pomodoro.ui;
 
 import static android.content.Context.MODE_PRIVATE;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Vibrator;
 
 import androidx.appcompat.widget.AppCompatTextView;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,9 +30,7 @@ import com.mk.pomodoro.ui.viewmodel.PomodoroTypeTimeViewModel;
 
 import java.util.Locale;
 
-
 public class HomeFragment extends Fragment {
-
     AppCompatTextView tiempo;
     TabLayout tabLayout;
     private CircularProgressIndicator barraProgresoCircular;
@@ -39,6 +41,7 @@ public class HomeFragment extends Fragment {
     private int tiempoTrabajo;
     private int tiempoDescanso;
     private MediaPlayer mediaPlayer;
+    PomodoroTypeTimeViewModel pomodoroType;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -59,6 +62,16 @@ public class HomeFragment extends Fragment {
         mediaPlayer = MediaPlayer.create(getActivity(), R.raw.racing_into_the_night_yoasobi);
 
         Context context = getActivity();
+        // Actualiza los valores en el ViewModel
+        pomodoroType = new ViewModelProvider(requireActivity()).get(PomodoroTypeTimeViewModel.class);
+        pomodoroType.getTemaCambiado().observe(getViewLifecycleOwner(), cambiado -> {
+            if (cambiado) {
+                reiniciarTemporizadorYActualizarBotones();
+                pomodoroType.setTemaCambiado(false);
+            }
+        });
+        pomodoroType.setEstadoTemporizador("Trabajo");
+
         if (context != null) {
             sharedPreferences = context.getSharedPreferences("minka", MODE_PRIVATE);
             tiempoTrabajo = sharedPreferences.getInt("tiempoTrabajo", 25 );
@@ -71,14 +84,25 @@ public class HomeFragment extends Fragment {
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
+                // Actualiza los valores en el ViewModel
+                PomodoroTypeTimeViewModel pomodoroType = new ViewModelProvider(requireActivity()).get(PomodoroTypeTimeViewModel.class);
                 int position = tab.getPosition();
                 iniciarTemporizador = false;
+                // Guarda la posición de la pestaña seleccionada en SharedPreferences
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+                SharedPreferences.Editor editor = prefs.edit();
                 if (position == 0) {
                     prepararTemporizador(tiempoTrabajo * 60);
-
+                    pomodoroType.setEstadoTemporizador("Trabajo");
+                    editor.putInt("tab_position", position);
+                    editor.apply();
                 } else if (position == 1) {
                     prepararTemporizador(tiempoDescanso * 60);
+                    pomodoroType.setEstadoTemporizador("Descanso");
+                    editor.putInt("tab_position", position);
+                    editor.apply();
                 }
+                pomodoroType.setTemporizadorTerminado(false);
                 botonIniciar.setVisibility(View.VISIBLE);
                 botonPausar.setVisibility(View.GONE);
                 botonContinuar.setVisibility(View.GONE);
@@ -90,14 +114,18 @@ public class HomeFragment extends Fragment {
             @Override
             public void onTabReselected(TabLayout.Tab tab) {}
         });
-        prepararTemporizador(tiempoTrabajo * 60);
-        /*botonParar.setOnClickListener(v -> {
-            temporizador.reiniciarTemporizador(barraProgresoCircular, tiempo);
-            botonIniciar.setVisibility(View.VISIBLE);
-            botonPausar.setVisibility(View.GONE);
-            botonContinuar.setVisibility(View.GONE);
-            botonParar.setVisibility(View.GONE);
-        });*/
+        // Recupera la posición de la pestaña desde SharedPreferences
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        int position = prefs.getInt("tab_position", 0);
+
+        // Selecciona la pestaña correspondiente
+        TabLayout.Tab tab = tabLayout.getTabAt(position);
+        if (tab != null) {
+            tab.select();
+        }
+
+        prepararTemporizador((position == 0 ? tiempoTrabajo : tiempoDescanso) * 60);
+
         botonParar.setOnClickListener(v -> reiniciarTemporizadorYActualizarBotones());
         botonIniciar.setOnClickListener(v -> {
             iniciarTemporizador = true;
@@ -105,6 +133,7 @@ public class HomeFragment extends Fragment {
             botonIniciar.setVisibility(View.GONE);
             botonPausar.setVisibility(View.VISIBLE);
             botonParar.setVisibility(View.VISIBLE);
+            pomodoroType.setTemporizadorIniciado(true);
         });
         botonPausar.setOnClickListener(v -> {
             temporizador.pausarTemporizador();
@@ -133,6 +162,10 @@ public class HomeFragment extends Fragment {
             botonPararAlarma.setVisibility(View.GONE);
             temporizador.reiniciarTemporizador(barraProgresoCircular, tiempo);
             botonIniciar.setVisibility(View.VISIBLE);
+            // Cancelar la notificación
+            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getActivity());
+            notificationManager.cancel(1);
+            iniciarTemporizador = false;
         });
         return view;
     }
@@ -170,6 +203,15 @@ public class HomeFragment extends Fragment {
         });
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+    }
+
     private void prepararTemporizador(int segundos) {
         if (temporizador != null) {
             temporizador.destruirTemporizador();
@@ -181,28 +223,40 @@ public class HomeFragment extends Fragment {
             tiempo.setText(String.format(Locale.getDefault(), "%02d:%02d", segundosRestantes / 60, segundosRestantes % 60));
             barraProgresoCircular.setProgress(segundosRestantes);
             System.out.println(segundosRestantes);
+            iniciarTemporizador = true;
         });
 
         temporizador.setEscuchadorFinalizacion(() -> {
             tiempo.setText("00:00");
-            // Leer la preferencia del usuario para el sonido y vibración
-            sharedPreferences = getActivity().getSharedPreferences("minka", MODE_PRIVATE);
-            boolean sonidoHabilitado = sharedPreferences.getBoolean("sonido", true);
-            boolean vibracionHabilitada = sharedPreferences.getBoolean("vibracion", true);
-            if (sonidoHabilitado) {
-                // Reproduce el sonido de la alarma.
-                mediaPlayer.start();
-                // Configura el MediaPlayer para que se repita.
-                mediaPlayer.setLooping(true);
-            }
-            if (vibracionHabilitada) {
-                // Activa la vibración en bucle con un patrón de 1 segundo de vibración y 1 segundo de pausa
-                Vibrator vibrator = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
-                if (vibrator != null) {
-                    long[] pattern = {0, 1000, 1000}; // Patrón: 0 ms de espera, 1000 ms de vibración, 1000 ms de pausa
-                    vibrator.vibrate(pattern, 0); // El segundo parámetro indica en qué índice del patrón comenzar (0 para repetir desde el principio)
+            Activity activity = getActivity();
+            if (activity != null) {
+                // Leer la preferencia del usuario para el sonido y vibración
+                sharedPreferences = getActivity().getSharedPreferences("minka", MODE_PRIVATE);
+                boolean sonidoHabilitado = sharedPreferences.getBoolean("sonido", true);
+                boolean vibracionHabilitada = sharedPreferences.getBoolean("vibracion", true);
+                if (sonidoHabilitado) {
+                    // Reproduce el sonido de la alarma.
+                    mediaPlayer.start();
+                    // Configura el MediaPlayer para que se repita.
+                    mediaPlayer.setLooping(true);
+                }
+                if (vibracionHabilitada) {
+                    // Activa la vibración en bucle con un patrón de 1 segundo de vibración y 1 segundo de pausa
+                    Vibrator vibrator = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
+                    if (vibrator != null) {
+                        long[] pattern = {0, 1000, 1000}; // Patrón: 0 ms de espera, 1000 ms de vibración, 1000 ms de pausa
+                        vibrator.vibrate(pattern, 0); // El segundo parámetro indica en qué índice del patrón comenzar (0 para repetir desde el principio)
+                    }
                 }
             }
+
+            // Actualiza los valores en el ViewModel
+            PomodoroTypeTimeViewModel pomodoroType = new ViewModelProvider(requireActivity()).get(PomodoroTypeTimeViewModel.class);
+            pomodoroType.setTemporizadorTerminado(true);
+            pomodoroType.setTemporizadorIniciado(false);
+            // Enviar un broadcast para indicar que el temporizador ha terminado
+            Intent intent = new Intent("com.mk.pomodoro.TEMPORIZADOR_TERMINADO");
+            LocalBroadcastManager.getInstance(getActivity()).sendBroadcast(intent);
             // Oculta los otros botones.
             botonIniciar.setVisibility(View.GONE);
             botonPausar.setVisibility(View.GONE);
@@ -220,6 +274,7 @@ public class HomeFragment extends Fragment {
             temporizador.iniciarTemporizador();
         }
     }
+
     private void reiniciarTemporizadorYActualizarBotones() {
         temporizador.reiniciarTemporizador(barraProgresoCircular, tiempo);
         botonIniciar.setVisibility(View.VISIBLE);

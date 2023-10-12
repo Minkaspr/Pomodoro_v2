@@ -70,18 +70,23 @@ public class Temporizador {
     public void pausarTemporizador() {
         temporizador.cancel();
         estaCorriendo = false;
+        setEstaCorriendo(false);
+        System.out.println("Temporizador pausado");
     }
 
     public void reanudarTemporizador() {
         if (!estaCorriendo && temporizador.getMilisegundosRestantes() > 0) {
             temporizador = new TemporizadorInterno(this, temporizador.getMilisegundosRestantes(), intervaloCuentaRegresiva);
             iniciarTemporizador();
+            estaCorriendo = true;
         }
     }
 
     public void iniciarTemporizador() {
         temporizador.start();
         estaCorriendo = true;
+        setEstaCorriendo(true);
+        System.out.println("Temporizador iniciado");
     }
 
     public void reiniciarTemporizador(CircularProgressIndicator barraProgresoCircular, TextView tiempo) {
@@ -93,5 +98,13 @@ public class Temporizador {
 
     public void destruirTemporizador() {
         temporizador.cancel();
+    }
+
+    public boolean getEstaCorriendo() {
+        return estaCorriendo;
+    }
+
+    public void setEstaCorriendo(boolean estaCorriendo) {
+        this.estaCorriendo = estaCorriendo;
     }
 }

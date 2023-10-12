@@ -185,6 +185,10 @@ public class SettingsFragment extends Fragment implements CustomTimerBottomSheet
     }
 
     private void actualizarTema(int temaSeleccionado, SharedPreferences sharedPreferences) {
+
+        PomodoroTypeTimeViewModel pomodoroTypeTime = new ViewModelProvider(requireActivity()).get(PomodoroTypeTimeViewModel.class);
+        pomodoroTypeTime.setTemaCambiado(true);
+
         // Guardar la preferencia de tema
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt("tema", temaSeleccionado);
