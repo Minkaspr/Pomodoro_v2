@@ -218,7 +218,6 @@ public class MainActivity extends AppCompatActivity {
         if (temporizadorTerminado) {
             title = "Tiempo de " + estadoTemporizador + " completado";
             text = "El tiempo de " + estadoTemporizador + " ha terminado.";
-            // Reset the timer state
             pomodoroType.setTemporizadorTerminado(false);
             showNewNotificacion(CHANNEL_ID, title, text);
         }

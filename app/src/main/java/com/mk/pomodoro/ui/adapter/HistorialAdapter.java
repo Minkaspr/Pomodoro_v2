@@ -44,8 +44,12 @@ public class HistorialAdapter extends RecyclerView.Adapter<HistorialAdapter.Hist
     @Override
     public void onBindViewHolder(HistorialViewHolder holder, int position) {
         Historial historial = historialList.get(position);
-        holder.tipo.setText(historial.getTipo());
-        holder.opcion_tiempo.setText(historial.getOpcion_tiempo());
+        String tipo = historial.getTipo();
+        String opcion_tiempo = historial.getOpcion_tiempo();
+        String tipoFormateado = tipo.substring(0, 1).toUpperCase() + tipo.substring(1).toLowerCase();
+        String opcionTiempoFormateado = opcion_tiempo.substring(0, 1).toUpperCase() + opcion_tiempo.substring(1).toLowerCase();
+        holder.tipo.setText(tipoFormateado);
+        holder.opcion_tiempo.setText(opcionTiempoFormateado);
         holder.tiempo_designado.setText(String.valueOf(historial.getTiempo_designado()));
         holder.tiempo_transcurrido.setText(String.valueOf(historial.getTiempo_transcurrido()));
         holder.hora_inicio.setText(historial.getHora_inicio());

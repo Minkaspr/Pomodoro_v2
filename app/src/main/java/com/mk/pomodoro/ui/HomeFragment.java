@@ -131,6 +131,7 @@ public class HomeFragment extends Fragment {
             NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getActivity());
             notificationManager.cancel(1);
             iniciarTemporizador = false;
+            pomodoroType.setTemporizadorIniciado(false);
         });
         botonIniciar.setOnClickListener(v -> {
             iniciarTemporizador = true;

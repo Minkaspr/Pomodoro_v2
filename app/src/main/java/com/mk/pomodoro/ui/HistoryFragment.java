@@ -3,6 +3,7 @@ package com.mk.pomodoro.ui;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -38,6 +39,9 @@ public class HistoryFragment extends Fragment {
         recyclerView = view.findViewById(R.id.rvHistory);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
+        DividerItemDecoration divider = new DividerItemDecoration(recyclerView.getContext(), DividerItemDecoration.VERTICAL);
+        recyclerView.addItemDecoration(divider);
+
         HistorialApi apiService = HistorialApiClient.getApiClient().create(HistorialApi.class);
 
         Call<List<Historial>> call = apiService.getHistorial();
@@ -51,7 +55,7 @@ public class HistoryFragment extends Fragment {
 
             @Override
             public void onFailure(Call<List<Historial>> call, Throwable t) {
-                // Manejo de errores
+                // Para los errores
             }
         });
 
