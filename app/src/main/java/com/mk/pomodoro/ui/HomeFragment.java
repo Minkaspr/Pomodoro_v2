@@ -126,7 +126,12 @@ public class HomeFragment extends Fragment {
 
         prepararTemporizador((position == 0 ? tiempoTrabajo : tiempoDescanso) * 60);
 
-        botonParar.setOnClickListener(v -> reiniciarTemporizadorYActualizarBotones());
+        botonParar.setOnClickListener(v -> {
+            reiniciarTemporizadorYActualizarBotones();
+            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getActivity());
+            notificationManager.cancel(1);
+            iniciarTemporizador = false;
+        });
         botonIniciar.setOnClickListener(v -> {
             iniciarTemporizador = true;
             temporizador.iniciarTemporizador();

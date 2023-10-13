@@ -35,4 +35,7 @@
     <string name="frag_set_op_sound">Sonido</string>
     <string name="frag_set_op_vibration">Vibración</string>
     <string name="frag_set_descript_switch_silent">Sonido</string>
+
+    <string name="frag_rec_title">Historial</string>
+    <string name="page_history">Historial</string>
 </resources>

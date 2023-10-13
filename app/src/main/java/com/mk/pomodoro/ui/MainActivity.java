@@ -79,8 +79,11 @@ public class MainActivity extends AppCompatActivity {
             if (item.getItemId() == R.id.navigation_home) {
                 viewPager.setCurrentItem(0);
                 return true;
-            } else if (item.getItemId() == R.id.navigation_settings) {
+            } else if (item.getItemId() == R.id.navigation_history) {
                 viewPager.setCurrentItem(1);
+                return true;
+            } else if (item.getItemId() == R.id.navigation_settings) {
+                viewPager.setCurrentItem(2);
                 return true;
             }
             return false;

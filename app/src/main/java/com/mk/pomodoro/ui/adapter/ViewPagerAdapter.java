@@ -6,6 +6,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 import com.mk.pomodoro.ui.HomeFragment;
+import com.mk.pomodoro.ui.HistoryFragment;
 import com.mk.pomodoro.ui.SettingsFragment;
 
 public class ViewPagerAdapter extends FragmentStateAdapter {
@@ -19,6 +20,8 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
         if (position == 0) {
             return new HomeFragment();
         } else if (position == 1) {
+            return new HistoryFragment();
+        } else if (position == 2) {
             return new SettingsFragment();
         } else {
             return new Fragment(); // Devuelve un fragmento vacío
@@ -27,7 +30,7 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
 
     @Override
     public int getItemCount() {
-        return 2; // Número de fragmentos que quieres mostrar en tu ViewPager
+        return 3; // Número de fragmentos que quieres mostrar en tu ViewPager
     }
 }
 
