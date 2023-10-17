@@ -28,7 +28,7 @@
 
     <style name="HelpText" parent="@style/BaseText">
         <item name="android:textSize">12sp</item>
-        <item name="android:textColor">?attr/colorOnTertiaryContainer</item>
+        <item name="android:textColor">?attr/colorOutline</item>
     </style>
 
 </resources>

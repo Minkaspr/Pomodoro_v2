@@ -3,7 +3,7 @@
     <item
         android:id="@+id/navigation_home"
         android:enabled="true"
-        android:icon="@drawable/ic_home"
+        android:icon="@drawable/ic_home_outline"
         android:title="@string/page_home"/>
 
     <item
@@ -15,7 +15,7 @@
     <item
         android:id="@+id/navigation_settings"
         android:enabled="true"
-        android:icon="@drawable/ic_settings"
+        android:icon="@drawable/ic_settings_outline"
         android:title="@string/page_settings"/>
 
 

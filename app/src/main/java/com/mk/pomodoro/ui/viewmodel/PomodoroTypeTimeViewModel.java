@@ -4,8 +4,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.mk.pomodoro.controller.Temporizador;
-
 public class PomodoroTypeTimeViewModel extends ViewModel {
     private final MutableLiveData<Integer> tiempoTrabajo = new MutableLiveData<>();
     private final MutableLiveData<Integer> tiempoDescanso = new MutableLiveData<>();
@@ -15,6 +13,8 @@ public class PomodoroTypeTimeViewModel extends ViewModel {
     private final MutableLiveData<Boolean> temporizadorTerminado = new MutableLiveData<>(false);
     private final MutableLiveData<Boolean> temporizadorIniciado = new MutableLiveData<>(false);
     private final MutableLiveData<Boolean> temaCambiado = new MutableLiveData<>(false);
+    private final MutableLiveData<Boolean> mostrarInfoPersonalizado = new MutableLiveData<>(false);
+    private final MutableLiveData<Boolean> mostrarSnackbar = new MutableLiveData<>(false);
 
     public void setTiempoTrabajo(int tiempo) {
         tiempoTrabajo.setValue(tiempo);
@@ -78,5 +78,21 @@ public class PomodoroTypeTimeViewModel extends ViewModel {
 
     public void setTemaCambiado(boolean cambiado) {
         temaCambiado.setValue(cambiado);
+    }
+
+    public void setMostrarInfoPersonalizado(boolean mostrar) {
+        mostrarInfoPersonalizado.setValue(mostrar);
+    }
+
+    public LiveData<Boolean> getMostrarInfoPersonalizado() {
+        return mostrarInfoPersonalizado;
+    }
+
+    public void setMostrarSnackbar(boolean mostrar) {
+        mostrarSnackbar.setValue(mostrar);
+    }
+
+    public LiveData<Boolean> getMostrarSnackbar() {
+        return mostrarSnackbar;
     }
 }

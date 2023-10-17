@@ -165,31 +165,59 @@
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/clPersonalized"
                     android:layout_width="match_parent"
-                    android:layout_height="64dp"
+                    android:layout_height="wrap_content"
+                    android:minHeight="64dp"
                     android:paddingHorizontal="16dp"
                     android:foreground="?attr/selectableItemBackground">
                     <androidx.appcompat.widget.LinearLayoutCompat
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
+                        android:layout_marginVertical="8dp"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent">
-                        <TextView
-                            android:id="@+id/tv_personalized_name"
+                        <androidx.appcompat.widget.LinearLayoutCompat
+                            android:id="@+id/llcHeaderPersonalized"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            style="@style/MainText"
-                            android:text="@string/frag_set_op_4_personalized"
-                            app:layout_constraintLeft_toLeftOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
-                        <TextView
-                            android:id="@+id/tv_personalized_descript"
+                            android:orientation="vertical">
+                            <TextView
+                                android:id="@+id/tv_personalized_name"
+                                style="@style/MainText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/frag_set_op_4_personalized"
+                                app:layout_constraintLeft_toLeftOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+                            <TextView
+                                android:id="@+id/tv_personalized_descript"
+                                style="@style/SecondaryText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/frag_set_op_4_personalized_descript"
+                                app:layout_constraintTop_toBottomOf="@+id/textView1" />
+                        </androidx.appcompat.widget.LinearLayoutCompat>
+                        <androidx.appcompat.widget.LinearLayoutCompat
+                            android:id="@+id/llInfo"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            style="@style/SecondaryText"
-                            android:text="@string/frag_set_op_4_personalized_descript"
-                            app:layout_constraintTop_toBottomOf="@+id/textView1" />
+                            android:orientation="horizontal"
+                            android:layout_marginStart="8dp"
+                            android:visibility="gone">
+                            <ImageView
+                                android:id="@+id/ivInfoIcon"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:contentDescription="@string/frag_set_descript_ic_info"
+                                android:src="@drawable/ic_info" />
+                            <TextView
+                                android:id="@+id/tvInfoText"
+                                style="@style/HelpText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/frag_set_op_4_personalized_info_descript" />
+                        </androidx.appcompat.widget.LinearLayoutCompat>
                     </androidx.appcompat.widget.LinearLayoutCompat>
                     <ImageView
                         android:id="@+id/ivPersonalized"

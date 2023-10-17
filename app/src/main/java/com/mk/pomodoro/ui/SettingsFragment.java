@@ -16,7 +16,6 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
-import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,12 +23,13 @@ import android.widget.ImageView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.materialswitch.MaterialSwitch;
+import com.google.android.material.snackbar.Snackbar;
 import com.mk.pomodoro.R;
 import com.mk.pomodoro.ui.viewmodel.PomodoroTypeTimeViewModel;
 
 public class SettingsFragment extends Fragment implements CustomTimerBottomSheet.OnOptionChangeListener{
 
-    private LinearLayoutCompat llcTema, llcSonido, llcVibracion;
+    private LinearLayoutCompat llcTema, llcSonido, llcVibracion, llcPersonalizadoInfo;
     private ConstraintLayout clClasico, clExtendido, clCorto, clPersonalizado;
     private ImageView ivClasico, ivExtendido, ivCorto, ivPersonalizado;
     private MaterialSwitch sSonido, sVibracion;
@@ -52,6 +52,28 @@ public class SettingsFragment extends Fragment implements CustomTimerBottomSheet
         llcTema.setOnClickListener(this::mostrarDialogoTema);
         llcSonido = view.findViewById(R.id.llSound);
         llcVibracion = view.findViewById(R.id.llVibration);
+        llcPersonalizadoInfo = view.findViewById(R.id.llInfo);
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("minka", MODE_PRIVATE);
+
+        boolean mostrarInfoPersonalizado = sharedPreferences.getBoolean("mostrarInfoPersonalizado", false);
+        PomodoroTypeTimeViewModel pomodoroType = new ViewModelProvider(requireActivity()).get(PomodoroTypeTimeViewModel.class);
+        pomodoroType.setMostrarInfoPersonalizado(mostrarInfoPersonalizado);
+        pomodoroType.getMostrarInfoPersonalizado().observe(getViewLifecycleOwner(), mostrar -> {
+            if (mostrar) {
+                llcPersonalizadoInfo.setVisibility(View.VISIBLE);
+            }
+        });
+        boolean snackbarMostrado = sharedPreferences.getBoolean("snackbarMostrado", false);
+        pomodoroType.getMostrarSnackbar().observe(getViewLifecycleOwner(), mostrar -> {
+            if (mostrar && !snackbarMostrado) {
+                View rootView = requireActivity().findViewById(android.R.id.content);
+                Snackbar.make(rootView, "Mantén presionado para volver a editar los tiempos personalizados", Snackbar.LENGTH_LONG).show();
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putBoolean("snackbarMostrado", true);
+                editor.apply();
+            }
+        });
+
         sSonido = view.findViewById(R.id.switch_sound);
         sVibracion = view.findViewById(R.id.switch_vibration);
         verificarSonidoVibracion();
@@ -59,7 +81,7 @@ public class SettingsFragment extends Fragment implements CustomTimerBottomSheet
         sVibracion.setClickable(false);
 
         llcSonido.setOnClickListener(v -> {
-            SharedPreferences sharedPreferences = getActivity().getSharedPreferences("minka", MODE_PRIVATE);
+            //SharedPreferences sharedPreferences = getActivity().getSharedPreferences("minka", MODE_PRIVATE);
             boolean sonidoHabilitado = sharedPreferences.getBoolean("sonido", true);
 
             // Invierte el estado (activo a inactivo o viceversa)
@@ -68,7 +90,7 @@ public class SettingsFragment extends Fragment implements CustomTimerBottomSheet
         });
 
         llcVibracion.setOnClickListener(v -> {
-            SharedPreferences sharedPreferences = getActivity().getSharedPreferences("minka", MODE_PRIVATE);
+            //SharedPreferences sharedPreferences = getActivity().getSharedPreferences("minka", MODE_PRIVATE);
             boolean vibracionHabilitada = sharedPreferences.getBoolean("vibracion", true);
 
             // Invierte el estado (activo a inactivo o viceversa)
@@ -103,26 +125,30 @@ public class SettingsFragment extends Fragment implements CustomTimerBottomSheet
         });
 
         clPersonalizado.setOnClickListener(v -> {
-            activarVisibilidad(View.INVISIBLE, View.INVISIBLE, View.INVISIBLE, View.VISIBLE);
-            CustomTimerBottomSheet bottomSheet = CustomTimerBottomSheet.newInstance();
-            bottomSheet.setOnOptionChangeListener(this);
-            bottomSheet.setOnCloseListener(() -> {
-                Activity activity = getActivity();
-                if (activity != null) {
-                    SharedPreferences sharedPreferences = activity.getSharedPreferences("minka", MODE_PRIVATE);
-                    int ultimaOpcionSeleccionada = sharedPreferences.getInt("opcionSeleccionada", 2);
-                    simularClick(ultimaOpcionSeleccionada);
-                }
-            });
-            if (!bottomSheet.isAdded() && bottomSheet.getShouldShowBottomSheet()) {
-                bottomSheet.show(getParentFragmentManager(), "CustomTimerBottomSheet");
+            boolean isPersonalizadoConfigurado = sharedPreferences.getBoolean("isPersonalizadoConfigurado", false);
+
+            if (isPersonalizadoConfigurado) {
+                // Si ya se han ingresado datos, recuperamos los datos y activamos la opción
+                int tiempoTrabajo = sharedPreferences.getInt("tiempoTrabajoPersonalizado", 0);
+                int tiempoDescanso = sharedPreferences.getInt("tiempoDescansoPersonalizado", 0);
+                guardarOpcionSeleccionada(4);
+                pomodoroType.setTiempoTrabajo(tiempoTrabajo);
+                pomodoroType.setTiempoDescanso(tiempoDescanso);
+                activarVisibilidad(View.INVISIBLE, View.INVISIBLE, View.INVISIBLE, View.VISIBLE);
+            } else {
+                abrirBottomSheetDialog();
             }
+        });
+
+        clPersonalizado.setOnLongClickListener(v -> {
+            abrirBottomSheetDialog();
+            return true;
         });
 
 
         Activity activity = getActivity();
         if (activity != null) {
-            SharedPreferences sharedPreferences = activity.getSharedPreferences("minka", MODE_PRIVATE);
+            //SharedPreferences sharedPreferences = activity.getSharedPreferences("minka", MODE_PRIVATE);
             int opcionSeleccionada = sharedPreferences.getInt("opcionSeleccionada", 2);
             actualizarVisibilidad(opcionSeleccionada);
         }
@@ -301,5 +327,34 @@ public class SettingsFragment extends Fragment implements CustomTimerBottomSheet
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean("vibracion", activarVibracion);
         editor.apply();
+    }
+
+    private void abrirBottomSheetDialog() {
+        CustomTimerBottomSheet bottomSheet = CustomTimerBottomSheet.newInstance();
+        //-----
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("minka", MODE_PRIVATE);
+        boolean isPersonalizadoConfigurado = sharedPreferences.getBoolean("isPersonalizadoConfigurado", false);
+        if (isPersonalizadoConfigurado) {
+            int tiempoTrabajo = sharedPreferences.getInt("tiempoTrabajoPersonalizado", 0);
+            int tiempoDescanso = sharedPreferences.getInt("tiempoDescansoPersonalizado", 0);
+
+            Bundle args = new Bundle();
+            args.putInt("tiempoTrabajo", tiempoTrabajo);
+            args.putInt("tiempoDescanso", tiempoDescanso);
+            bottomSheet.setArguments(args);
+        }
+        //----
+        bottomSheet.setOnOptionChangeListener(this);
+        bottomSheet.setOnCloseListener(() -> {
+            Activity activity = getActivity();
+            if (activity != null) {
+                // SharedPreferences sharedPreferences = activity.getSharedPreferences("minka", MODE_PRIVATE);
+                int ultimaOpcionSeleccionada = sharedPreferences.getInt("opcionSeleccionada", 2);
+                simularClick(ultimaOpcionSeleccionada);
+            }
+        });
+        if (!bottomSheet.isAdded() && bottomSheet.getShouldShowBottomSheet()) {
+            bottomSheet.show(getParentFragmentManager(), "CustomTimerBottomSheet");
+        }
     }
 }

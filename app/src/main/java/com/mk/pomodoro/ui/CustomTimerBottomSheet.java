@@ -19,7 +19,6 @@ import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
@@ -72,6 +71,16 @@ public class CustomTimerBottomSheet extends BottomSheetDialogFragment {
         btnCerrar = view.findViewById(R.id.btnClose);
         btnConfirmar = view.findViewById(R.id.btnConfirm);
         btnCerrar.setOnClickListener(v -> new Handler().postDelayed(this::dismiss, 250));
+
+        if (getArguments() != null) {
+            int tiempoTrabajo = getArguments().getInt("tiempoTrabajo");
+            int tiempoDescanso = getArguments().getInt("tiempoDescanso");
+
+            tietTiempoTrabajo.setText(String.valueOf(tiempoTrabajo));
+            tietTiempoDescanso.setText(String.valueOf(tiempoDescanso));
+            tietTiempoTrabajo.setSelection(tietTiempoTrabajo.getText().length());
+            tietTiempoDescanso.setSelection(tietTiempoDescanso.getText().length());
+        }
 
         tietTiempoTrabajo.addTextChangedListener(new TextWatcher() {
             @Override
@@ -133,13 +142,14 @@ public class CustomTimerBottomSheet extends BottomSheetDialogFragment {
             pomodoroType.setTiempoTrabajo(tiempoTrabajo);
             pomodoroType.setTiempoDescanso(tiempoDescanso);
             pomodoroType.setOpcionSeleccionada(4);
+            pomodoroType.setMostrarInfoPersonalizado(true);
+            pomodoroType.setConfigurationChanged(true);
 
             // Recupera la última opción seleccionada de SharedPreferences
             SharedPreferences sharedPreferences = getActivity().getSharedPreferences("minka", MODE_PRIVATE);
-            int ultimaOpcionSeleccionada = sharedPreferences.getInt("opcionSeleccionada", 2);
-
-            if (onOptionChangeListener != null) {
-                onOptionChangeListener.onOptionChange(ultimaOpcionSeleccionada);
+            boolean snackbarMostrado = sharedPreferences.getBoolean("snackbarMostrado", false);
+            if (!snackbarMostrado){
+                pomodoroType.setMostrarSnackbar(true);
             }
             dismiss();
         });
@@ -197,6 +207,10 @@ public class CustomTimerBottomSheet extends BottomSheetDialogFragment {
             editor.putInt("tiempoTrabajo", tiempoTrabajo);
             editor.putInt("tiempoDescanso", tiempoDescanso);
             editor.putInt("opcionSeleccionada", 4);
+            editor.putInt("tiempoTrabajoPersonalizado", tiempoTrabajo);
+            editor.putInt("tiempoDescansoPersonalizado", tiempoDescanso);
+            editor.putBoolean("isPersonalizadoConfigurado", true);
+            editor.putBoolean("mostrarInfoPersonalizado", true);
             editor.apply();
         }
     }

@@ -21,6 +21,8 @@
     <string name="frag_set_op_4_personalized">Personalizado</string>
     <string name="frag_set_op_4_personalized_descript">Trabajo y Descanso a tu medida</string>
     <string name="frag_set_descript_ic_check">Seleccionado</string>
+    <string name="frag_set_descript_ic_info">Informacion</string>
+    <string name="frag_set_op_4_personalized_info_descript">Mantener presionado para editar</string>
 
     <string name="bott_sheet_c_timer_subtitle">Personalizar</string>
     <string name="bott_sheet_c_timer_til_working_time">Tiempo de trabajo</string>
